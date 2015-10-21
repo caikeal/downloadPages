@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>淘职部落</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <style>
+    div,
+    body,
+    i,
+    p,
+    a {
+        margin: 0;
+        padding: 0;
+    }
+    
+    a {
+        text-decoration: none;
+    }
+    
+    body {
+        background-color: #fff;
+        font: 12px/1.5 tahoma, arial, "\5B8B\4F53", sans-serif;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .download-cover {
+        background-image: url("asset/phone_bg.png");
+        -webkit-background-size: 100% auto;
+        -moz-background-size: 100% auto;
+        -ms-background-size: 100% auto;
+        -o-background-size: 100% auto;
+        background-size: 100% auto;
+        background-repeat: no-repeat;
+        background-position: center 0;
+        height: 19rem;
+    }
+    
+    .copyright {
+        margin-top: 1rem;
+        padding-bottom: 10px;
+        font-size: 12px;
+        text-align: center;
+    }
+    
+    .remind {
+        text-align: center;
+        font-size: 20px;
+        color: #3399ff;
+        font-weight: 500;
+        margin-bottom: 0.6rem;
+    }
+    
+    .btn.btn-block {
+        margin-top: 0.7rem;
+        margin-right: 1.875rem;
+        margin-left: 1.875rem;
+        display: block;
+        color: #fff;
+        font-size: 18px;
+    }
+    
+    .btn.btn-blue {
+        background-color: #3ab2ff;
+    }
+    
+    .btn.btn-green {
+        background-color: #36c13e;
+    }
+    
+    .btn .icon.iconfont {
+        font-size: 24px;
+    }
+    </style>
+    <!-- <link rel="stylesheet" href="asset/icon/demo.css"> -->
+    <link rel="stylesheet" type="text/css" href="asset/icon/iconfont.css">
+    <link rel="stylesheet" type="text/css" href="dist/btn.css">
+</head>
+
+<body>
+    <script type="text/javascript">
+    !(function(window) {
+        var document = window.document,
+            setSize = function() {
+                var zoom = document.documentElement.clientWidth / 320;
+                zoom = zoom > 2.5 ? 2.5 : zoom < 1 ? 1 : zoom;
+                document.documentElement.style.fontSize = zoom * 20 + "px";
+                document.body.style.fontSize = zoom * 20 + "px";
+            };
+        setSize();
+        window.addEventListener("resize", setSize, false);
+        window.addEventListener("load", setSize, false);
+        window._dateNow = new Date();
+    })(window);
+
+	TzblEmploy = {};
+
+    (function() {
+    	/*locked防止重复吊起应用*/
+        var ua = navigator.userAgent.toLowerCase(),
+            locked = false,
+            domLoaded = document.readyState === 'complete',
+            delayToRun;
+
+        function customClickEvent() {
+            var clickEvt;
+            if (window.CustomEvent) {
+                clickEvt = new window.CustomEvent('click', {
+                    canBubble: true,
+                    cancelable: true
+                });
+            } else {
+                clickEvt = document.createEvent('Event');
+                clickEvt.initEvent('click', true, true);
+            }
+
+            return clickEvt;
+        }
+
+        var noIntentTest = /tzbl|360 aphone|weibo|windvane|ucbrowser/.test(ua);
+        var hasIntentTest = /chrome|samsung/.test(ua);
+        var isAndroid = /android|adr/.test(ua);
+        var canIntent = !noIntentTest && hasIntentTest && isAndroid;
+        var inWeibo = ua.indexOf('weibo') > -1;
+
+        if (ua.indexOf('m353') > -1 && !noIntentTest) {
+            canIntent = false;
+        }
+
+        /**
+         * 打开
+         * @param   {string}    params  唤起的参数设置('alipays://platformapi/startapp?'后面的值)
+         * @param   {boolean}   jumpUrl 唤起后，android下要跳转到的URL；
+         *                      若传"default"，则为http://d.alipay.com/i/index.htm?nojump=1#once
+         */
+        TzblEmploy.open = function() {
+            // 唤起锁定，避免重复唤起
+            if (locked) {
+                return;
+            }
+            locked = true;
+
+            // 通过alipays协议唤起钱包
+            var schemePrefix='tzbl';
+            if (!canIntent) {
+                var tzblUrl = schemePrefix + '://';
+
+                if (ua.indexOf('qq/') > -1 || (ua.indexOf('safari') > -1 && ua.indexOf('os 9_') > -1)) {
+                    var openSchemeLink = document.getElementById('openSchemeLink');
+                    if (!openSchemeLink) {
+                        openSchemeLink = document.createElement('a');
+                        openSchemeLink.id = 'openSchemeLink';
+                        openSchemeLink.style.display = 'none';
+                        document.body.appendChild(openSchemeLink);
+                    }
+                    openSchemeLink.href = tzblUrl;
+                    // 执行click
+                    openSchemeLink.dispatchEvent(customClickEvent());
+                } else {
+                    var ifr = document.createElement('iframe');
+                    ifr.src = tzblUrl;
+                    ifr.style.display = 'none';
+                    document.body.appendChild(ifr);
+                }
+            } else {
+                // android 下 chrome 浏览器通过 intent 协议唤起
+
+                var intentUrl = schemePrefix + "://";
+
+                var openIntentLink = document.getElementById('openIntentLink');
+                if (!openIntentLink) {
+                    openIntentLink = document.createElement('a');
+                    openIntentLink.id = 'openIntentLink';
+                    openIntentLink.style.display = 'none';
+                    document.body.appendChild(openIntentLink);
+                }
+                openIntentLink.href = intentUrl;
+                // 执行click
+                openIntentLink.dispatchEvent(customClickEvent());
+            }
+
+            // 唤起加锁，避免短时间内被重复唤起
+            setTimeout(function() {
+                locked = false;
+            }, 2500);
+        }
+
+        if (!domLoaded) {
+            delayToRun = function() {
+                TzblEmploy.open();
+                delayToRun=null;
+            };
+        }
+
+        if (!domLoaded) {
+            document.addEventListener('DOMContentLoaded', function() {
+                domLoaded = true;
+                if (typeof delayToRun === 'function') {
+                    delayToRun();
+                }
+            }, false);
+        }
+    })();
+    </script>
+    <div class="download-cover">
+    </div>
+    <div class="download-interaction">
+        <div class="remind"><i class="icon iconfont">&#xe62d;</i>&nbsp;<span>新用户下载</span></div>
+        <a class="btn btn-block btn-blue" href="https://itunes.apple.com/cn/app/wei-tao-zhi/id766113139?mt=8"><i class="icon iconfont">&#xe608;</i>&nbsp;<span>IOS下载</span></a>
+        <a class="btn btn-block btn-green" href="http://openbox.mobilem.360.cn/index/d/sid/1644694"><i class="icon iconfont">&#xe636;</i>&nbsp;<span>Android下载</span></a>
+    </div>
+    <p class="copyright">淘职部落版权所有&nbsp;©&nbsp;2004&nbsp;-&nbsp;2015</p>
+</body>
+
+</html>
